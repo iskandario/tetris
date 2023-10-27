@@ -97,7 +97,7 @@
                     {
                         FixFigure(figure);
                         CheckLines();
-                
+ 						uiHandler.Update(cells, currentFigure, Height, Width);             
                         uiHandler.Render(this);
                         SpawnNewFigure();
                     }
