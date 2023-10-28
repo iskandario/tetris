@@ -22,10 +22,14 @@
                 public const int Height = 20;
                 public Cell[,] cells;
                 private UIHandler uiHandler;
-                public int score { get; private set; } = 0;
+                public int score { get;  set; } = 0;
                 public Figure nextFigure; 
             
-            
+                public void SetScore(int score)
+                {
+                    this.score = score;
+                }
+
             
                 public GameField(UIHandler uiHandler)
                 {
@@ -59,7 +63,7 @@
             
                     return array;
                 }
-            
+               
             
                 public void GameOver()
                 {
@@ -97,7 +101,7 @@
                     {
                         FixFigure(figure);
                         CheckLines();
- 						uiHandler.Update(cells, currentFigure, Height, Width);             
+                        uiHandler.Update(cells, currentFigure, Height, Width);
                         uiHandler.Render(this);
                         SpawnNewFigure();
                     }
@@ -171,7 +175,7 @@
                 private Random rnd = new Random();
                 public Figure currentFigure;
             
-                private Figure GetRandomFigure()
+                public Figure GetRandomFigure()
                 {
                     int randomIndex = rnd.Next(0, Figure.AllFigures.Count);
                     Figure newFigure = Figure.AllFigures[randomIndex].Clone();
@@ -510,207 +514,505 @@
                     Score = score;
                 }
             }
-            
-            public class Game
+    public class UIHandler
+    {
+        private int Height { get; set; }
+        private int Width { get; set; }
+        private Figure CurrentFigure { get; set; }
+        private Cell[,] Cells { get; set; }
+
+        public UIHandler(Cell[,] cells, Figure currentFigure, int height, int width)
+        {
+            Cells = cells;
+            CurrentFigure = currentFigure;
+            Height = height;
+            Width = width;
+        }
+
+        public void Update(Cell[,] cells, Figure currentFigure, int height, int width)
+        {
+            Cells = cells;
+            CurrentFigure = currentFigure;
+            Height = height;
+            Width = width;
+        }
+
+        private ConsoleColor GetColor(string color)
+        {
+            switch (color)
             {
-                private GameField field;
-                private Figure current;
-                private DateTime lastMoveDown = DateTime.Now;
-                private const int MoveDownIntervalMs = 500;
-                private UIHandler uiHandler;
-            
-                public Game()
+                case "red": return ConsoleColor.Red;
+                case "blue": return ConsoleColor.Blue;
+                case "orange": return ConsoleColor.DarkYellow;
+                case "green": return ConsoleColor.Green;
+                case "yellow": return ConsoleColor.Yellow;
+                case "purple": return ConsoleColor.DarkMagenta;
+                case "pink": return ConsoleColor.Magenta;
+                default: return ConsoleColor.White;
+            }
+        }
+
+        public void Render(GameField field)
+        {
+            Console.SetCursorPosition(0, 0); // Устанавливаем курсор в начало
+
+
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
                 {
-                    field = new GameField(uiHandler);
-                    current = field.currentFigure;
-                    uiHandler = new UIHandler(field.cells, field.currentFigure, GameField.Height, GameField.Width);
-                    field.InitializeUIHandler(uiHandler);
-            
-            
-            
-                }
-            
-                public void HandleInput(ConsoleKey key)
-                {
-                    switch (key)
+                    bool filled = Cells[x, y].IsFilled;
+
+                    if (CurrentFigure != null && x >= CurrentFigure.X && y >= CurrentFigure.Y
+                        && x < CurrentFigure.X + CurrentFigure.BorderSizeX &&
+                        y < CurrentFigure.Y + CurrentFigure.BorderSizeY)
                     {
-                        case ConsoleKey.LeftArrow:
-                            field.MoveFigureLeft(field.currentFigure);
-                            break;
-                        case ConsoleKey.RightArrow:
-                            field.MoveFigureRight(field.currentFigure);
-                            break;
-                        case ConsoleKey.DownArrow:
-                            field.MoveFigureDown(field.currentFigure);
-                            lastMoveDown = DateTime.Now; // Обновляем время последнего смещения
-                            break;
-                        case ConsoleKey.UpArrow:
-                            field.RotateFigure(field.currentFigure);
-                            break;
-                        default:
-                            break;
+                        filled = filled || CurrentFigure.Shape[y - CurrentFigure.Y, x - CurrentFigure.X];
+                    }
+
+                    if (filled)
+                    {
+                        Console.ForegroundColor = GetColor(Cells[x, y].Color);
+                        Console.Write("\u2593\u2593 ");
+                        Console.ResetColor();
+                    }
+                    else
+                    {
+                        Console.Write("\u2591\u2591 ");
                     }
                 }
-            
-                public void Render()
+
+                Console.WriteLine();
+            }
+
+            Console.WriteLine("Score: " + field.score);
+
+            Console.WriteLine("Next Figure: ");
+            for (int y = 0; y < field.nextFigure.SizeY; y++)
+            {
+                for (int x = 0; x < field.nextFigure.SizeX; x++)
                 {
-                    uiHandler.Update(field.cells, field.currentFigure, GameField.Height, GameField.Width);
-                    uiHandler.Render(field);
-            
+                    Console.ForegroundColor = GetColor(field.nextFigure.Color);
+                    Console.Write(field.nextFigure.Shape[y, x] ? "\u2593\u2593 " : "   ");
+                    Console.ResetColor();
                 }
+
+                Console.WriteLine();
+            }
+
+            // create empty lines under the "Next Figure" for consistent interface
+            for (int i = field.nextFigure.SizeY; i < 4; i++) // assuming 4 as the maximum height of a figure
+            {
+                Console.WriteLine("  ");
+            }
+        }
+    }
+public class GameState
+{
+    public GameField field;
+    public Figure current;
+    public DateTime lastMoveDown;
+    public int score;
+
+    public GameState(GameField field, Figure current, DateTime lastMoveDown, int score)
+    {
+        this.field = field;
+        this.current = current;
+        this.lastMoveDown = lastMoveDown;
+        this.score = score;
+    }
+}
+
+
+
+
+public class GameMenu
+{  private readonly Game game;
+
+    public GameMenu(Game game)
+    {
+        this.game = game;
+    }
+
+    public static string Serialize(object toSerialize)
+    {
+        return JsonConvert.SerializeObject(toSerialize);
+    }
+
+    public static T Deserialize<T>(string toDeserialize)
+    {
+        return JsonConvert.DeserializeObject<T>(toDeserialize);
+    }
+
+    public void SaveGame(Game game, string filePath)
+    {
+        GameState gameState = new GameState(game.field, game.current, game.lastMoveDown, game.field.score);
+        var jsonString = Serialize(gameState);
+        Console.WriteLine("Saving game...");
+        File.WriteAllText(filePath, jsonString);
+        Console.WriteLine("Game saved successfully!");
+    }
+
+
+    public Game LoadGameFromFile(string filePath)
+    {
+        try
+        {
+            var jsonString = File.ReadAllText(filePath);
+            var loadedGameState = Deserialize<GameState>(jsonString);
+            if (loadedGameState != null)
+            {
+                Game loadedGame = new Game(loadedGameState);
+                loadedGame.uiHandler = new UIHandler(loadedGame.field.cells, loadedGame.field.currentFigure, GameField.Height, GameField.Width);
+                loadedGame.field.InitializeUIHandler(loadedGame.uiHandler);
             
-            
-            
-                public async Task GameLoop()
+                if (loadedGame.field.currentFigure == null)
                 {
-                    var name = string.Empty;
-                    try
+                    loadedGame.field.SpawnNewFigure();
+                }
+
+                if (loadedGame.field.nextFigure == null)
+                {
+                    loadedGame.field.nextFigure = loadedGame.field.GetRandomFigure();
+                }
+
+                loadedGame.uiHandler.Update(loadedGame.field.cells, loadedGame.field.currentFigure, GameField.Height, GameField.Width);  // Обновить состояние UIHandler
+            
+                Console.WriteLine("Game loaded successfully!");
+                return loadedGame;
+            }
+            else
+            {
+                Console.WriteLine("Failed to load game: GameState is null");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Failed to load game: " + ex.Message);
+        }
+        return null;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public bool InGameMenu(Game game, string filePath)
+    {
+        Console.WriteLine("Game Menu:");
+        Console.WriteLine("1. Continue Game");
+        Console.WriteLine("2. Save Game");
+        Console.WriteLine("3. Load Game");
+        Console.WriteLine("4. Exit to Main Menu");
+        Console.Write("Enter your choice: ");
+
+        string choice = Console.ReadLine();
+        switch (choice)
+        {
+            case "1":
+                return false; // Продолжить игру
+            case "2":
+                game.SaveGame(); // Сохранить игру
+                return false;
+            case "3":
+                game.LoadGame(); // Загрузить игру
+                return false;
+            case "4":
+                throw new ExitToMainMenuException(); // Выход в главное меню
+
+            default:
+                Console.WriteLine("Invalid choice. Please choose again.");
+                return InGameMenu( game, filePath);
+        }
+    }
+
+
+    public string MainMenu()
+    {
+        Console.WriteLine("Menu:");
+        Console.WriteLine("1. Start Game");
+        Console.WriteLine("2. Scoreboard");
+        Console.WriteLine("3. Exit");
+        Console.Write("Enter your choice: ");
+
+        string choice = Console.ReadLine();
+        switch (choice)
+        {
+            case "1":
+                StartGameMenu();  // Вызываем метод подменю "Start Game"
+                break;
+            case "2":
+                ScoreBoard scoreBoard = new ScoreBoard();  // Создаем объект доски счетов
+                scoreBoard.LoadFromFile();  // Загружаем счета из файла
+                scoreBoard.DisplayScores();  // Отображаем доску счетов
+                break;
+            case "3":
+                System.Environment.Exit(0);  // Выходим из игры
+                break;
+            default:
+                Console.WriteLine("Invalid choice. Please choose again.");
+                MainMenu();  // Заново вызываем метод `MainMenu`, если введен неправильный выбор
+                break;
+        }
+
+        return choice;
+    }
+    
+
+    public void StartGameMenu()
+    {
+        Console.WriteLine("Start Game:");
+        Console.WriteLine("1. Start New Game");
+        Console.WriteLine("2. Load Game");
+        Console.Write("Enter your choice: ");
+
+        string choice = Console.ReadLine();
+        switch (choice)
+        {
+            case "1":
+                Game newGame = new Game();
+                newGame.StartNewGame();
+                break;
+            case "2":
+                // Загружаем состояние игры из файла
+                Game loadedGame = LoadGameFromFile("/Users/iskandargarifullin/RiderProjects/TETRIS/TETRIS/gameField.json");
+                if (loadedGame != null)
+                {
+                    // Создаем новую игру с загруженным состоянием
+                    loadedGame.PlayGame("Loaded Game").Wait();
+                }
+                else
+                {
+                    Console.WriteLine("No saved game found.");
+                }
+                break;
+            default:
+                Console.WriteLine("Invalid choice. Please choose again.");
+                StartGameMenu();
+                break;
+        }
+    }
+}
+public class ExitToMainMenuException : Exception
+{
+}
+
+public class Game
+    {
+        public GameField field;
+        public Figure current;
+        public DateTime lastMoveDown = DateTime.Now;
+        public const int MoveDownIntervalMs = 500;
+        public UIHandler uiHandler;
+        public GameMenu gameMenu;
+        private const string filePath = "/Users/iskandargarifullin/RiderProjects/TETRIS/TETRIS/gameField.json";
+
+        public string FilePath
+        {
+            get { return filePath; }
+        }
+      
+        public Game(GameState gameState)
+        {
+            this.field = gameState.field;
+            this.current = gameState.current;
+            this.lastMoveDown = gameState.lastMoveDown;
+            this.field.SetScore(gameState.score);
+            this.uiHandler = new UIHandler(field.cells, field.currentFigure, GameField.Height, GameField.Width);
+            this.field.InitializeUIHandler(uiHandler);
+            this.gameMenu = new GameMenu(this);
+        }
+
+
+        public Game()
+        {
+            field = new GameField(uiHandler);
+            uiHandler = new UIHandler(field.cells, field.currentFigure, GameField.Height, GameField.Width);
+            field.InitializeUIHandler(uiHandler);
+            gameMenu = new GameMenu(this);
+        }
+
+
+        public void SaveGame()
+        {
+            gameMenu.SaveGame(this, filePath);
+        }
+
+        public void LoadGame()
+        {
+            Game loadedGame = gameMenu.LoadGameFromFile(filePath);
+            if (loadedGame != null)
+            {
+                // Запускаем игру с загруженными данными
+                loadedGame.PlayGame("Loaded Game").Wait();
+            }
+            else
+            {
+                Console.WriteLine("No saved game found.");
+            }
+        }
+
+
+
+
+
+
+        public void StartNewGame()
+        {
+            Console.WriteLine("Enter your name: ");
+            var name = Console.ReadLine() ?? "Player"; // "Player" как имя по умолчанию, если введено пустое значение
+            field = new GameField(uiHandler);
+            current = field.currentFigure;
+            uiHandler = new UIHandler(field.cells, field.currentFigure, GameField.Height, GameField.Width);
+            field.InitializeUIHandler(uiHandler);
+            var scoreBoard = new ScoreBoard();
+            // Запускаем асинхронный метод игрового цикла
+            PlayGame(name).Wait();
+        }
+
+
+
+
+
+        public void HandleInput(ConsoleKey key)
+        {
+            switch (key)
+            {
+                case ConsoleKey.LeftArrow:
+                    field.MoveFigureLeft(field.currentFigure);
+                    break;
+                case ConsoleKey.RightArrow:
+                    field.MoveFigureRight(field.currentFigure);
+                    break;
+                case ConsoleKey.DownArrow:
+                    field.MoveFigureDown(field.currentFigure);
+                    lastMoveDown = DateTime.Now;  // Обновляем время последнего смещения
+                    break;
+                case ConsoleKey.UpArrow:
+                    field.RotateFigure(field.currentFigure);
+                    break;
+                case ConsoleKey.Z:  // Обработка клавиши Z для вызова внутриигрового меню
+                    bool exitToMainMenu = gameMenu.InGameMenu(this, "gameField.json");
+                    if (exitToMainMenu)
                     {
-                        Console.WriteLine("Enter your name: ");
-                        name = Console.ReadLine();
-                        var scoreBoard = new ScoreBoard();
+                        return;  // Возвращаемся в главное меню
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+
+        public void Render()
+        {
+            uiHandler.Update(field.cells, field.currentFigure, GameField.Height, GameField.Width);
+            uiHandler.Render(field);
+
+        }
+
+        public async Task PlayGame(string playerName)
+        {
+            try
+            {
+                while (true)
+                {
+                    if (Console.KeyAvailable)
+                    {
+                        var key = Console.ReadKey(true);
+                        HandleInput(key.Key);
+                        if (key.Key == ConsoleKey.Z)
+                        {
+                            if (gameMenu.InGameMenu(this, filePath))
+                            {
+                                return; // Вернуться в главное меню
+                            }
+                        }
+                    }
+
+                    if ((DateTime.Now - lastMoveDown).TotalMilliseconds >= MoveDownIntervalMs)
+                    {
+                        field.MoveFigureDown(field.currentFigure);
+                        lastMoveDown = DateTime.Now;
+                    }
+
+                    Render();
+                    await Task.Delay(100);
+                }
+            }
+            catch (ExitToMainMenuException)
+            {
+                return; // Возвращаемся в главное меню
+            }
+            catch (GameOverException e)
+            {
+                Console.WriteLine($"Game over! Your score: {e.Score}");
+                var scoreBoard = new ScoreBoard();
+                scoreBoard.AddOrUpdatePlayerScore(playerName, e.Score);
+                scoreBoard.DisplayScores();
+            }
+            catch (IndexOutOfRangeException)
+            {
+                Console.WriteLine($"Game over! Your score: {field.score}");
+                var scoreBoard = new ScoreBoard();
+                scoreBoard.AddOrUpdatePlayerScore(playerName, field.score);
+                scoreBoard.DisplayScores();
+            }
+        }
+
+        public async Task GameLoop()
+        {
+            while (true) // бесконечный цикл для главного меню
+            {
+                var option = gameMenu.MainMenu(); // вызываем результат MainMenu
+
+                switch (option)
+                {
+                    case "1": // Start Game
+                        gameMenu.StartGameMenu(); // вызываем подменю "Start Game"
+                        break;
+                    case "2": // Scoreboard
+                        ScoreBoard scoreBoard = new ScoreBoard();
                         scoreBoard.LoadFromFile();
-                        while (true)
-                        {
-                            if (Console.KeyAvailable)
-                            {
-                                var key = Console.ReadKey(true);
-                                HandleInput(key.Key);
-                            }
-            
-                            // Проверяем, прошло ли достаточно времени с последнего смещения вниз
-                            if ((DateTime.Now - lastMoveDown).TotalMilliseconds >= MoveDownIntervalMs)
-                            {
-                                field.MoveFigureDown(field.currentFigure);
-                                lastMoveDown = DateTime.Now; // Обновляем время последнего смещения
-                            }
-            
-                            Render();
-            
-                            await Task.Delay(100); // Более маленькая задержка для более быстрого реагирования на ввод
-                        }
-                    }
-                    catch (GameOverException e)
-                    {
-                        Console.WriteLine($"Game over! Your score: {e.Score}");
-                        var scoreBoard = new ScoreBoard();
-                        scoreBoard.AddOrUpdatePlayerScore(name, e.Score);
-                        scoreBoard.DisplayScores(); // отображение доски счетов
-                    }
-                    catch (IndexOutOfRangeException)
-                    {
-                        Console.WriteLine($"Game over! Your score: {field.score}");
-                        var scoreBoard = new ScoreBoard();
-                        scoreBoard.AddOrUpdatePlayerScore(name, field.score);
-                        scoreBoard.DisplayScores(); // отображение доски счетов
-                    }
+                        scoreBoard.DisplayScores();
+                        break;
+                    case "3": // Exit
+                        Environment.Exit(0);
+                        break;
                 }
             }
-            
-            public class UIHandler
+        }
+
+
+
+        public class Program
+        {
+            public static async Task Main()
             {
-                private int Height { get; set; }
-                private int Width { get; set; }
-                private Figure CurrentFigure { get; set; }
-                private Cell[,] Cells { get; set; }
-            
-                public UIHandler(Cell[,] cells, Figure currentFigure, int height, int width)
-                {
-                    Cells = cells;
-                    CurrentFigure = currentFigure;
-                    Height = height;
-                    Width = width;
-                }
-            
-                public void Update(Cell[,] cells, Figure currentFigure, int height, int width)
-                {
-                    Cells = cells;
-                    CurrentFigure = currentFigure;
-                    Height = height;
-                    Width = width;
-                }
-            
-                private ConsoleColor GetColor(string color)
-                {
-                    switch (color)
-                    {
-                        case "red": return ConsoleColor.Red;
-                        case "blue": return ConsoleColor.Blue;
-                        case "orange": return ConsoleColor.DarkYellow;
-                        case "green": return ConsoleColor.Green;
-                        case "yellow": return ConsoleColor.Yellow;
-                        case "purple": return ConsoleColor.DarkMagenta;
-                        case "pink": return ConsoleColor.Magenta;
-                        default: return ConsoleColor.White;
-                    }
-                }
-            
-                public void Render(GameField field)
-                {
-                    Console.SetCursorPosition(0, 0);  // Устанавливаем курсор в начало
-            
-            
-                    for (int y = 0; y < Height; y++)
-                    {
-                        for (int x = 0; x < Width; x++)
-                        {
-                            bool filled = Cells[x, y].IsFilled;
-            
-                            if (CurrentFigure != null && x >= CurrentFigure.X && y >= CurrentFigure.Y
-                                && x < CurrentFigure.X + CurrentFigure.BorderSizeX && y < CurrentFigure.Y + CurrentFigure.BorderSizeY)
-                            {
-                                filled = filled || CurrentFigure.Shape[y - CurrentFigure.Y, x - CurrentFigure.X];
-                            }
-            
-                            if (filled)
-                            {
-                                Console.ForegroundColor = GetColor(Cells[x, y].Color);
-                                Console.Write("\u2593\u2593 ");
-                                Console.ResetColor();
-                            } 
-                            else 
-                            {
-                                Console.Write("\u2591\u2591 ");
-                            }
-                        }
-            
-                        Console.WriteLine();
-                    }
-            
-                    Console.WriteLine("Score: " + field.score);
-            
-                    Console.WriteLine("Next Figure: ");
-                    for (int y = 0; y < field.nextFigure.SizeY; y++)
-                    {
-                        for (int x = 0; x < field.nextFigure.SizeX; x++)
-                        {
-                            Console.ForegroundColor = GetColor(field.nextFigure.Color);
-                            Console.Write(field.nextFigure.Shape[y, x] ? "\u2593\u2593 " : "   ");
-                            Console.ResetColor();
-                        }
-            
-                        Console.WriteLine();
-                    }
-            
-                    // create empty lines under the "Next Figure" for consistent interface
-                    for (int i = field.nextFigure.SizeY; i < 4; i++) // assuming 4 as the maximum height of a figure
-                    {
-                        Console.WriteLine("  ");
-                    }
-                }
-            
-                public class Program
-                {
-                    public static async Task Main()
-                    {
-                        Console.CursorVisible = false; // Отключить видимость курсора
-                        Game game = new Game();
-                        await game.GameLoop();
-                    }
-                }
-            
+                Console.CursorVisible = false; // Отключить видимость курсора
+                Game game = new Game();
+                await game.GameLoop();
             }
-            
+        }
+
+    }
+
+          
 
 
   
