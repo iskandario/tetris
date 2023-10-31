@@ -11,7 +11,7 @@
                 {
                     X = x;
                     Y = y;
-                    IsFilled = false;
+                    IsFilled = isFilled;
                     Color = color;
                 }
             }
@@ -64,12 +64,7 @@
                     return array;
                 }
                
-            
-                public void GameOver()
-                {
-                    Console.WriteLine("Game Over! Your score is: " + score);
-            
-                }
+                
             
                 public void MoveFigureLeft(Figure figure)
                 {
@@ -607,21 +602,7 @@
             }
         }
     }
-public class GameState
-{
-    public GameField field;
-    public Figure current;
-    public DateTime lastMoveDown;
-    public int score;
 
-    public GameState(GameField field, Figure current, DateTime lastMoveDown, int score)
-    {
-        this.field = field;
-        this.current = current;
-        this.lastMoveDown = lastMoveDown;
-        this.score = score;
-    }
-}
 
 
 
@@ -643,74 +624,7 @@ public class GameMenu
     {
         return JsonConvert.DeserializeObject<T>(toDeserialize);
     }
-
-    public void SaveGame(Game game, string filePath)
-    {
-        GameState gameState = new GameState(game.field, game.current, game.lastMoveDown, game.field.score);
-        var jsonString = Serialize(gameState);
-        Console.WriteLine("Saving game...");
-        File.WriteAllText(filePath, jsonString);
-        Console.WriteLine("Game saved successfully!");
-    }
-
-
-    public Game LoadGameFromFile(string filePath)
-    {
-        try
-        {
-            var jsonString = File.ReadAllText(filePath);
-            var loadedGameState = Deserialize<GameState>(jsonString);
-            if (loadedGameState != null)
-            {
-                Game loadedGame = new Game(loadedGameState);
-                loadedGame.uiHandler = new UIHandler(loadedGame.field.cells, loadedGame.field.currentFigure, GameField.Height, GameField.Width);
-                loadedGame.field.InitializeUIHandler(loadedGame.uiHandler);
-            
-                if (loadedGame.field.currentFigure == null)
-                {
-                    loadedGame.field.SpawnNewFigure();
-                }
-
-                if (loadedGame.field.nextFigure == null)
-                {
-                    loadedGame.field.nextFigure = loadedGame.field.GetRandomFigure();
-                }
-
-                loadedGame.uiHandler.Update(loadedGame.field.cells, loadedGame.field.currentFigure, GameField.Height, GameField.Width);  // Обновить состояние UIHandler
-            
-                Console.WriteLine("Game loaded successfully!");
-                return loadedGame;
-            }
-            else
-            {
-                Console.WriteLine("Failed to load game: GameState is null");
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Failed to load game: " + ex.Message);
-        }
-        return null;
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
 
     public bool InGameMenu(Game game, string filePath)
     {
@@ -726,20 +640,22 @@ public class GameMenu
         {
             case "1":
                 return false; // Продолжить игру
+         
             case "2":
-                game.SaveGame(); // Сохранить игру
-                return false;
+                game.SaveGame();
+                return false; // Сохранить игру
             case "3":
-                game.LoadGame(); // Загрузить игру
+                // Загрузить игру
+                game.LoadGame();
                 return false;
             case "4":
                 throw new ExitToMainMenuException(); // Выход в главное меню
-
             default:
                 Console.WriteLine("Invalid choice. Please choose again.");
-                return InGameMenu( game, filePath);
+                return InGameMenu(game, filePath);
         }
     }
+
 
 
     public string MainMenu()
@@ -789,22 +705,9 @@ public class GameMenu
                 newGame.StartNewGame();
                 break;
             case "2":
-                // Загружаем состояние игры из файла
-                Game loadedGame = LoadGameFromFile("/Users/iskandargarifullin/RiderProjects/TETRIS/TETRIS/gameField.json");
-                if (loadedGame != null)
-                {
-                    // Создаем новую игру с загруженным состоянием
-                    loadedGame.PlayGame("Loaded Game").Wait();
-                }
-                else
-                {
-                    Console.WriteLine("No saved game found.");
-                }
-                break;
-            default:
-                Console.WriteLine("Invalid choice. Please choose again.");
-                StartGameMenu();
-                break;
+                game.LoadGame();
+                break;// Загружаем состояние игры из файла
+               
         }
     }
 }
@@ -821,11 +724,8 @@ public class Game
         public UIHandler uiHandler;
         public GameMenu gameMenu;
         private const string filePath = "/Users/iskandargarifullin/RiderProjects/TETRIS/TETRIS/gameField.json";
-
-        public string FilePath
-        {
-            get { return filePath; }
-        }
+        private GameStateSaver gameStateSaver;
+        
       
         public Game(GameState gameState)
         {
@@ -845,29 +745,12 @@ public class Game
             uiHandler = new UIHandler(field.cells, field.currentFigure, GameField.Height, GameField.Width);
             field.InitializeUIHandler(uiHandler);
             gameMenu = new GameMenu(this);
+            gameStateSaver = new GameStateSaver(filePath);
+
         }
 
 
-        public void SaveGame()
-        {
-            gameMenu.SaveGame(this, filePath);
-        }
-
-        public void LoadGame()
-        {
-            Game loadedGame = gameMenu.LoadGameFromFile(filePath);
-            if (loadedGame != null)
-            {
-                // Запускаем игру с загруженными данными
-                loadedGame.PlayGame("Loaded Game").Wait();
-            }
-            else
-            {
-                Console.WriteLine("No saved game found.");
-            }
-        }
-
-
+        
 
 
 
@@ -886,6 +769,28 @@ public class Game
         }
 
 
+        public void SaveGame()
+        {
+            var gameState = new GameState(field, current, lastMoveDown, field.score);
+            gameStateSaver.SaveGame(gameState);
+            Console.WriteLine("Game saved successfully.");
+        }
+
+
+        public void LoadGame()
+        {
+            var gameState = gameStateSaver.LoadGame();
+            if (gameState != null)
+            {
+                field = gameState.field;
+                current = gameState.current;
+                lastMoveDown = gameState.lastMoveDown;
+                field.SetScore(gameState.score);
+                uiHandler = new UIHandler(field.cells, field.currentFigure, GameField.Height, GameField.Width);
+                field.InitializeUIHandler(uiHandler);
+                Console.WriteLine("Game loaded successfully.");
+            }
+        }
 
 
 
@@ -998,6 +903,85 @@ public class Game
             }
         }
 
+        public class GameState
+        {
+            public GameField field { get; set; }
+            public Figure current { get; set; }
+            public DateTime lastMoveDown { get; set; }
+            public int score { get; set; }
+
+            public GameState(GameField field, Figure current, DateTime lastMoveDown, int score)
+            {
+                this.field = field;
+                this.current = current;
+                this.lastMoveDown = lastMoveDown;
+                this.score = score;
+            }
+        }
+
+       
+        public class GameStateSaver
+        {
+            private string filePath;
+
+            public GameStateSaver(string filePath)
+            {
+                this.filePath = filePath;
+            }
+
+            public void SaveGame(GameState gameState)
+            {
+                try
+                {
+                    var json = JsonConvert.SerializeObject(gameState);
+                    File.WriteAllText(filePath, json);
+                    Console.WriteLine("Saved game state:");
+                    PrintField(gameState.field.cells);  // Добавленный код для логирования
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Не удалось сохранить игру. Ошибка: {e.Message}");
+                }
+            }
+
+            public GameState LoadGame()
+            {
+                if (!File.Exists(filePath))
+                {
+                    Console.WriteLine("Файл сохранения не найден.");
+                    return null;
+                }
+
+                try
+                {
+                    var json = File.ReadAllText(filePath);
+                    var gameState = JsonConvert.DeserializeObject<GameState>(json);
+                    Console.WriteLine("Loaded game state:");
+                    PrintField(gameState.field.cells);  // Добавленный код для логирования
+                    return gameState;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Не удалось загрузить игру. Ошибка: {e.Message}");
+                    return null;
+                }
+            }
+
+            private void PrintField(Cell[,] cells)
+            {
+                for (int y = 0; y < GameField.Height; y++)
+                {
+                    for (int x = 0; x < GameField.Width; x++)
+                    {
+                        Console.Write(cells[x, y].IsFilled ? "1" : "0");
+                    }
+                    Console.WriteLine();
+                }
+            }
+
+        }
+
+
 
 
         public class Program
@@ -1010,7 +994,7 @@ public class Game
             }
         }
 
-    }//over
+    }
 
           
 
