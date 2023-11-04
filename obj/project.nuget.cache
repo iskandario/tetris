@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "OTjP44YcemNFJV9RJThFMkOBgb4eZGWZsAJmBQa86yvDcIETUhaY7UsnQQR5CzEuPgHO15UvqqmmRRh5L0z+Pw==",
+  "success": true,
+  "projectFilePath": "/Users/iskandargarifullin/RiderProjects/TETRIS/TETRIS/TETRIS.csproj",
+  "expectedPackageFiles": [
+    "/Users/iskandargarifullin/.nuget/packages/jetbrains.annotations/2023.3.0-eap4/jetbrains.annotations.2023.3.0-eap4.nupkg.sha512",
+    "/Users/iskandargarifullin/.nuget/packages/newtonsoft.json/13.0.3/newtonsoft.json.13.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}
