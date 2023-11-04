@@ -25,7 +25,7 @@ public class Game
         this.Field.InitializeUiHandler(UiHandler);
         this.PlayerName = gameState.PlayerName;
         this.GameMenu = new GameMenu(this);
-        this._gameStateSaver = new GameStateSaver(); // Инициализация в конструкторе
+        this._gameStateSaver = new GameStateSaver(); 
 
     }
 
@@ -69,13 +69,13 @@ public class Game
     {
         Console.WriteLine("Enter your name: ");
         var name = Console.ReadLine();
-        PlayerName = string.IsNullOrWhiteSpace(name) ? "Player" : name; // Установим имя игрока
+        PlayerName = string.IsNullOrWhiteSpace(name) ? "Player" : name; 
 
         Field = new GameField(UiHandler);
-        Current = Field.CurrentFigure; // Установим текущую фигуру
+        Current = Field.CurrentFigure; 
         UiHandler = new UiHandler(Field.Cells, Field.CurrentFigure, GameField.Height, GameField.Width);
         Field.InitializeUiHandler(UiHandler);
-        PlayGame(PlayerName).Wait(); // Запускаем асинхронный метод игрового цикла
+        PlayGame(PlayerName).Wait(); 
     }
 
 
@@ -108,9 +108,9 @@ public class Game
             Field.SetScore(gameState.Score);
             UiHandler = new UiHandler(Field.Cells, Field.CurrentFigure, GameField.Height, GameField.Width);
             Field.InitializeUiHandler(UiHandler);
-            PlayerName = gameState.PlayerName; // Загрузите имя игрока
+            PlayerName = gameState.PlayerName; 
             Console.WriteLine("Game loaded successfully.");
-            PlayGame(PlayerName).Wait(); // Продолжайте игру
+            PlayGame(PlayerName).Wait(); 
         }
     }
 

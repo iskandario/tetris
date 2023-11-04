@@ -88,8 +88,8 @@ public class UiHandler
                 Console.WriteLine();
             }
 
-            // create empty lines under the "Next Figure" for consistent interface
-            for (int i = field.NextFigure.SizeY; i < 4; i++) // assuming 4 as the maximum height of a figure
+          
+            for (int i = field.NextFigure.SizeY; i < 4; i++) 
             {
                 Console.WriteLine("  ");
             }

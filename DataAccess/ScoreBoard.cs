@@ -23,9 +23,9 @@ public class ScoreBoard
 
         _players = _players.OrderByDescending(p => p.Score).ToList();
 
-        if (_players.Count > 10) // if list exceed 10 players
+        if (_players.Count > 10) // если количество игроков в таблице больше 10
         {
-            _players.RemoveAt(10); // remove last one
+            _players.RemoveAt(10); 
         }
 
         SaveToFile();

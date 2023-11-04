@@ -33,7 +33,6 @@ public class GameField
                 }
             }
 
-            // Инициализируйте CurrentFigure и NextFigure сразу.
             NextFigure = GetRandomFigure();
             CurrentFigure = GetRandomFigure();
             SpawnNewFigure();
@@ -199,7 +198,6 @@ public class GameField
                     if (figure.Shape[y, x])
                     {
                         // Заполняем соответствующую клетку на игровом поле. 
-                        // Принимаем, что фигура при "остановке" становится синей.
                         Cells[figure.X + x, figure.Y + y].IsFilled = true;
                         Cells[figure.X + x, figure.Y + y].Color = figure.Color;
                     }
@@ -213,7 +211,7 @@ public class GameField
             {
                 for (int y = 0; y < figure.SizeY; y++)
                 {
-                    if (figure.Shape[y, x]) // Убрано сравнение с true
+                    if (figure.Shape[y, x]) 
                     {
                         if (figure.X + x < 0 || figure.X + x >= Width || figure.Y + y >= Height)
                         {
@@ -222,7 +220,7 @@ public class GameField
 
                         if (figure.Y + y >= 0 && Cells[figure.X + x, figure.Y + y].IsFilled)
                         {
-                            return false; // Ячейка, которую фигура собирается занять, уже заполнена
+                            return false; 
                         }
                     }
                 }

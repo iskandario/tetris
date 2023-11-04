@@ -29,7 +29,7 @@ namespace TETRIS.Presentation;
             {
                 // Обработка случая, когда choice равно null
                 Console.WriteLine("Ввод не предоставлен. Пожалуйста, введите ваш выбор: ");
-                return InGameMenu(); // или использовать некоторое значение по умолчанию или логику
+                return InGameMenu(); 
             }
             switch (choice)
             {
@@ -64,10 +64,10 @@ namespace TETRIS.Presentation;
 
             if (choice == null)
             {
-                // Обработка случая, когда choice равно null
+           
               
                 Console.WriteLine("Ввод не предоставлен. Пожалуйста, введите ваш выбор: ");
-                MainMenu(); // или использовать некоторое значение по умолчанию или логику
+                MainMenu(); 
             }
             switch (choice)
             {

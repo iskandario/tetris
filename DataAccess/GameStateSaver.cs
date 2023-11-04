@@ -8,16 +8,12 @@ namespace TETRIS.DataAccess
     {
         private readonly string _filePath;
 
-        // Если не передаем путь в конструкторе, используем стандартное местоположение
         public GameStateSaver()
         {
             _filePath = "/Users/iskandargarifullin/RiderProjects/TETRIS/TETRIS/Assets/gameField.json";
         }
 
-        public GameStateSaver(string filePath)
-        {
-            _filePath = filePath;
-        }
+       
 
         public void SaveGame(GameState gameState)
         {
