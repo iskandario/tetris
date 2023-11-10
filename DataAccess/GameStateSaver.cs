@@ -1,6 +1,5 @@
 using Newtonsoft.Json;
-using System;
-using System.IO;
+
 
 namespace TETRIS.DataAccess
 {
@@ -8,13 +7,13 @@ namespace TETRIS.DataAccess
     {
         private readonly string _filePath;
 
+        // Конструктор класса, устанавливающий путь к файлу сохранения.
         public GameStateSaver()
         {
             _filePath = "/Users/iskandargarifullin/RiderProjects/TETRIS/TETRIS/Assets/gameField.json";
         }
 
-       
-
+        // Метод для сохранения состояния игры в файле JSON.
         public void SaveGame(GameState gameState)
         {
             try
@@ -29,6 +28,7 @@ namespace TETRIS.DataAccess
             }
         }
 
+        // Метод для загрузки состояния игры из файла JSON.
         public GameState? LoadGame()
         {
             if (!File.Exists(_filePath))

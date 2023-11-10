@@ -3,16 +3,17 @@ using TETRIS.BusinessLogic;
 namespace TETRIS.Presentation;
 
 
-    public class GameMenu
+     public class GameMenu
     {
         private readonly Game _game;
 
+        // Конструктор класса GameMenu, принимающий экземпляр игры.
         public GameMenu(Game game)
         {
             this._game = game;
-     
         }
 
+        // Метод InGameMenu представляет меню, отображаемое во время игры.
         public bool InGameMenu()
         {
             Console.WriteLine("In-Game Menu:");
@@ -27,10 +28,10 @@ namespace TETRIS.Presentation;
 
             if (choice == null)
             {
-                // Обработка случая, когда choice равно null
-                Console.WriteLine("Ввод не предоставлен. Пожалуйста, введите ваш выбор: ");
-                return InGameMenu(); 
+                Console.WriteLine("Input not provided. Please enter your choice: ");
+                return InGameMenu(); // Рекурсивный вызов, если ввод отсутствует
             }
+
             switch (choice)
             {
                 case "1":
@@ -48,12 +49,23 @@ namespace TETRIS.Presentation;
                     return true; // Вернуться в главное меню
                 default:
                     Console.WriteLine("Invalid choice. Please choose again.");
-                    return InGameMenu();
+                    return InGameMenu(); // Рекурсивный вызов при недопустимом выборе
             }
         }
 
+        // Метод MainMenu представляет главное меню игры.
         public bool MainMenu()
         {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine(@"
+
+████████╗███████╗████████╗██████╗ ██╗███████╗
+╚══██╔══╝██╔════╝╚══██╔══╝██╔══██╗██║██╔════╝
+   ██║   █████╗     ██║   ██████╔╝██║███████╗
+   ██║   ██╔══╝     ██║   ██╔══██╗██║╚════██║
+   ██║   ███████╗   ██║   ██║  ██║██║███████║
+   ╚═╝   ╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝╚══════╝");
+            Console.ResetColor();
             Console.WriteLine("Main Menu:");
             Console.WriteLine("1. Start New Game");
             Console.WriteLine("2. Load Game");
@@ -64,11 +76,10 @@ namespace TETRIS.Presentation;
 
             if (choice == null)
             {
-           
-              
-                Console.WriteLine("Ввод не предоставлен. Пожалуйста, введите ваш выбор: ");
-                MainMenu(); 
+                Console.WriteLine("Input not provided. Please enter your choice: ");
+                MainMenu(); // Рекурсивный вызов, если ввод отсутствует
             }
+
             switch (choice)
             {
                 case "1":
@@ -85,13 +96,14 @@ namespace TETRIS.Presentation;
                     break;
                 default:
                     Console.WriteLine("Invalid choice. Please choose again.");
-                    MainMenu();
+                    MainMenu(); // Рекурсивный вызов при недопустимом выборе
                     break;
             }
 
             return true;
         }
 
+        // Метод для отображения таблицы лидеров.
         private void DisplayScoreBoard()
         {
             ScoreBoard scoreBoard = new ScoreBoard();

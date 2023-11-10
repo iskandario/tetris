@@ -1,14 +1,16 @@
 
 using TETRIS.BusinessLogic;
-namespace TETRIS.Presentation;
 
-public class UiHandler
+namespace TETRIS.Presentation
+{
+    public class UiHandler
     {
-        private int Height { get; set; }
-        private int Width { get; set; }
-        private Figure CurrentFigure { get; set; }
-        private Cell[,] Cells { get; set; }
+        private int Height { get; set; } // Высота игрового поля
+        private int Width { get; set; } // Ширина игрового поля
+        private Figure CurrentFigure { get; set; } // Текущая фигура
+        private Cell[,] Cells { get; set; } // Массив клеток игрового поля
 
+        // Конструктор класса UiHandler, принимающий массив клеток, текущую фигуру, высоту и ширину игрового поля.
         public UiHandler(Cell[,] cells, Figure currentFigure, int height, int width)
         {
             Cells = cells;
@@ -17,6 +19,7 @@ public class UiHandler
             Width = width;
         }
 
+        // Метод Update обновляет данные текущего объекта UiHandler.
         public void Update(Cell[,] cells, Figure currentFigure, int height, int width)
         {
             Cells = cells;
@@ -25,7 +28,8 @@ public class UiHandler
             Width = width;
         }
 
-        private ConsoleColor GetColor(string color)
+        // Метод GetColor возвращает ConsoleColor на основе строки цвета.
+        public ConsoleColor GetColor(string color)
         {
             switch (color)
             {
@@ -40,10 +44,10 @@ public class UiHandler
             }
         }
 
+        // Метод Render отображает игровое поле, текущую фигуру и следующую фигуру.
         public void Render(GameField field)
         {
             Console.SetCursorPosition(0, 0); // Устанавливаем курсор в начало
-
 
             for (int y = 0; y < Height; y++)
             {
@@ -61,37 +65,41 @@ public class UiHandler
                     if (filled)
                     {
                         Console.ForegroundColor = GetColor(Cells[x, y].Color);
-                        Console.Write("\u2593\u2593 ");
+                        Console.Write("\u2593\u2593 "); // Отображаем заполненную клетку
                         Console.ResetColor();
                     }
                     else
                     {
-                        Console.Write("\u2591\u2591 ");
+                        Console.Write("\u2591\u2591 "); // Отображаем пустую клетку
                     }
                 }
 
                 Console.WriteLine();
             }
 
-            Console.WriteLine("Score: " + field.Score);
+            Console.WriteLine("Score: " + field.Score); // Отображаем счет игры
 
             Console.WriteLine("Next Figure: ");
             for (int y = 0; y < field.NextFigure.SizeY; y++)
             {
-                for (int x = 0; x < field.NextFigure.SizeX; x++)
+                if (y >= field.NextFigure.SizeY)
                 {
-                    Console.ForegroundColor = GetColor(field.NextFigure.Color);
-                    Console.Write(field.NextFigure.Shape[y, x] ? "\u2593\u2593 " : "   ");
-                    Console.ResetColor();
+                    Console.WriteLine("  "); // Добавляем пустые строки для выравнивания размера
                 }
+                else
+                {
+                    for (int x = 0; x < field.NextFigure.SizeX; x++)
+                    {
+                        Console.ForegroundColor = GetColor(field.NextFigure.Color);
+                        Console.Write(field.NextFigure.Shape[y, x] ? "▓▓ " : "   ");
+                        Console.ResetColor();
+                    }
 
-                Console.WriteLine();
-            }
-
-          
-            for (int i = field.NextFigure.SizeY; i < 4; i++) 
-            {
-                Console.WriteLine("  ");
+                    Console.WriteLine();
+                }
             }
         }
+
+
     }
+}

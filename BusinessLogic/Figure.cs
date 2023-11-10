@@ -52,66 +52,80 @@ public class Figure
         public bool[,] Shape { get; set; }
         public string Color { get; set; }
 
+        
+        // Конструктор класса Figure. Создает экземпляр фигуры с заданными параметрами.
         public Figure(int x, int y, bool[,] shape, string color)
         {
+            // Устанавливаем координаты X и Y, форму фигуры и цвет.
             X = x;
             Y = y;
             Shape = shape;
             Color = color;
         }
-
+        
+        // Статический список всех возможных фигур в игре.
         public static List<Figure> AllFigures = new List<Figure>
         {
-            new Figure(GameField.Width / 2 - 2, -2, new [,]
+            new Figure(GameField.Width / 2 - 1, -3, new [,]
             {
-                { false, false, false, false },
-                { true, true, true, true },
-                { false, false, false, false },
-                { false, false, false, false }
+                { false, true, false, false },
+                { false, true, false, false },
+                { false, true, false, false },
+                { false, true, false, false }
             }, "red"),
+
+
+            
             new Figure(GameField.Width / 2 - 2, -2, new [,]
             {
-                { false, true, false },
-                { true, true, true },
-                { false, false, false }
+                { false, false, false},
+                { false, true, false},
+                { true, true, true},
+                { false, false, false}
 
             }, "blue"),
             new Figure(GameField.Width / 2 - 2, -2, new [,]
             {
-                { true, true },
-                { true, true }
-
+                { false, false, false},
+                { true, false, false},
+                { true, true, true},
+                { false, false, false}
             }, "orange"),
             new Figure(GameField.Width / 2 - 2, -2, new [,]
             {
-                { true, false, false },
-                { true, true, true },
-                { false, false, false },
+                { false, false, false},
+                { false, false, true},
+                { true, true, true},
+                { false, false, false}
 
             }, "green"),
             new Figure(GameField.Width / 2 - 2, -2, new [,]
             {
-                { false, false, true },
-                { true, true, true },
-                { false, false, false },
+                { false, false, false},
+                { true, true, false},
+                { false, true, true},
+                { false, false, false}
 
             }, "yellow"),
             new Figure(GameField.Width / 2 - 2, -2, new [,]
             {
-                { false, true, true },
-                { true, true, false },
-                { false, false, false },
+                { false, false, false},
+                { false, true, true},
+                { true, true, false},
+                { false, false, false}
 
             }, "purple"),
             new Figure(GameField.Width / 2 - 2, -2, new [,]
             {
-                { true, true, false },
-                { false, true, true },
-                { false, false, false },
+                { false, false, false, false },
+                { false, true, true, false },
+                { false, true, true, false },
+                { false, false, false, false }
 
             }, "pink")
 
         };
+        // Клонирует текущую фигуру, создавая новый экземпляр с идентичной формой и цветом.
 
         public Figure Clone()
         {
@@ -120,7 +134,9 @@ public class Figure
 
             return new Figure(X, Y, newShape, Color);
         }
-
+        
+        
+        // Проверяет, можно ли повернуть фигуру вправо на текущей позиции.
         public bool CanRotateRight(bool[,] filledCells)
         {
             int newSizeX = SizeY;
@@ -139,6 +155,8 @@ public class Figure
             return CheckPositionValid(newShape, X, Y, filledCells);
         }
 
+        
+        // Приватный метод, проверяющий, что фигура может быть размещена в указанной позиции.
         private bool CheckPositionValid(bool[,] shape, int shapeX, int shapeY, bool[,] filledCells)
         {
             for (int y = 0; y < shape.GetLength(0); y++)
@@ -171,20 +189,43 @@ public class Figure
             return true;
         }
 
+        // Поворачивает текущую фигуру вправо и возвращает новую фигуру с измененной формой.
         public Figure RotateRight()
         {
-            int newSizeX = SizeY;
-            int newSizeY = SizeX;
-            bool[,] newShape = new bool[newSizeY, newSizeX];
-
-            for (int y = 0; y < SizeY; y++)
+            if (SizeX == 4)
             {
-                for (int x = 0; x < SizeX; x++)
+                // Если фигура-палка имеет ширину 4, то выполним специальное вращение
+                bool[,] newShape = new bool[SizeY, SizeX];
+                for (int y = 0; y < SizeY; y++)
                 {
-                    newShape[x, SizeY - 1 - y] = Shape[y, x];
+                    for (int x = 0; x < SizeX; x++)
+                    {
+                        newShape[SizeY - 1 - x, y] = Shape[y, x];
+                    }
                 }
+                return new Figure(X, Y, newShape, Color);
             }
+            else
+            {
+                // Для других фигур выполняем обычное вращение
+                int centerX = SizeX / 2;
+                int centerY = SizeY / 2;
+                bool[,] newShape = new bool[SizeY, SizeX];
+                for (int y = 0; y < SizeY; y++)
+                {
+                    for (int x = 0; x < SizeX; x++)
+                    {
+                        int newX = centerX + y - centerY;
+                        int newY = centerY - x + centerX;
 
-            return new Figure(X, Y, newShape, Color);
+                        if (newX >= 0 && newX < SizeX && newY >= 0 && newY < SizeY)
+                        {
+                            newShape[newY, newX] = Shape[y, x];
+                        }
+                    }
+                }
+                return new Figure(X, Y, newShape, Color);
+            }
         }
+
     }

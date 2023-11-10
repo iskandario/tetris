@@ -8,28 +8,14 @@ public class Game
     public GameField Field;
     public Figure? Current;
     public DateTime LastMoveDown = DateTime.Now;
-    public const int MoveDownIntervalMs = 500;
+    public const int MoveDownIntervalMs = 285;
     public UiHandler UiHandler;
     public GameMenu GameMenu;
     public string? PlayerName;
-    private const string FilePath = "/Users/iskandargarifullin/RiderProjects/TETRIS/TETRIS/gameField.json";
     private readonly GameStateSaver _gameStateSaver;
+    
 
-    public Game(GameState gameState)
-    {
-        this.Field = gameState.Field;
-        this.Current = gameState.Current;
-        this.LastMoveDown = gameState.LastMoveDown;
-        this.Field.SetScore(gameState.Score);
-        this.UiHandler = new UiHandler(Field.Cells, Field.CurrentFigure, GameField.Height, GameField.Width);
-        this.Field.InitializeUiHandler(UiHandler);
-        this.PlayerName = gameState.PlayerName;
-        this.GameMenu = new GameMenu(this);
-        this._gameStateSaver = new GameStateSaver(); 
-
-    }
-
-
+    // Конструктор по умолчанию, инициализирующий новую игру.
     public Game()
     {
         // Создание временной фигуры с минимально допустимым массивом
@@ -57,14 +43,10 @@ public class Game
         PlayerName = "Player"; // Установим имя по умолчанию, которое можно будет изменить позже
         Current = Field.CurrentFigure; // Установим текущую фигуру из GameField
     }
+    
 
 
-
-
-
-
-
-
+    // Начать новую игру, запрашивая имя игрока.
     public void StartNewGame()
     {
         Console.WriteLine("Enter your name: ");
@@ -80,10 +62,11 @@ public class Game
 
 
 
-
+    // Сохранить текущее игровое состояние.
     public void SaveGame()
     {
-        if (Current == null || PlayerName == null)
+        if (Current == null || PlayerName == null) // Проверка наличия текущей фигуры и имени игрока, сохранение состояния и вывод сообщения.
+
         {
             Console.WriteLine("Cannot save game: Current figure or player name is not set.");
             return;
@@ -96,7 +79,7 @@ public class Game
 
 
 
-
+    // Загрузить ранее сохраненное игровое состояние.
     public void LoadGame()
     {
         var gameState = _gameStateSaver.LoadGame();
@@ -116,7 +99,7 @@ public class Game
 
 
 
-
+    // Обработка пользовательского ввода (нажатий клавиш).
     public void HandleInput(ConsoleKey key)
     {
         switch (key)
@@ -145,19 +128,22 @@ public class Game
         }
     }
 
-
+    // Отрисовка текущего состояния игры.
     public void Render()
     {
         UiHandler.Update(Field.Cells, Field.CurrentFigure, GameField.Height, GameField.Width);
         UiHandler.Render(Field);
 
     }
-
+    
+    // Основной игровой цикл.
     public async Task PlayGame(string playerName)
     {
+        Console.Clear();
         try
         {
-            while (true)
+            while (true)   // Цикл обработки игровых событий, ввода и автоматического смещения фигур.
+
             {
                 if (Console.KeyAvailable)
                 {
@@ -182,15 +168,17 @@ public class Game
                 }
 
                 Render();
-                await Task.Delay(100);
+                await Task.Delay(30);
             }
         }
         catch (ExitToMainMenuException)
         {
 
         }
-        catch (GameOverException e)
+        catch (GameOverException e)         // Обработка исключений при завершении игры.
+
         {
+            Console.Clear();
             Console.WriteLine($"Game over! Your score: {e.Score}");
             var scoreBoard = new ScoreBoard();
             scoreBoard.AddOrUpdatePlayerScore(playerName, e.Score);
@@ -198,6 +186,7 @@ public class Game
         }
         catch (IndexOutOfRangeException)
         {
+            Console.Clear();
             Console.WriteLine($"Game over! Your score: {Field.Score}");
             var scoreBoard = new ScoreBoard();
             scoreBoard.AddOrUpdatePlayerScore(playerName, Field.Score);
@@ -206,7 +195,8 @@ public class Game
     }
 
 
-    public void GameLoop()
+    public void GameLoop()    // Главный цикл игры, управляющий меню и игровым процессом.
+
     {
         bool isRunning = true;
         while (isRunning) // цикл, пока isRunning истинно
