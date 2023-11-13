@@ -8,18 +8,18 @@ namespace TETRIS.DataAccess;
 public class GameState(GameField field, Figure current, DateTime lastMoveDown, int score, string playerName)
 {
     
-    public GameField Field { get; set; } = field;
+    public GameField Field { get; } = field;
 
 
-    public Figure Current { get; set; } = current;
+    public Figure Current { get; } = current;
 
 
-    public DateTime LastMoveDown { get; set; } = lastMoveDown;
+    public DateTime LastMoveDown { get; } = lastMoveDown;
 
 
-    public int Score { get; set; } = score;
+    public int Score { get; } = score;
 
 
-    public string PlayerName { get; set; } = playerName;
+    public string PlayerName { get; } = playerName;
 
 }

@@ -2,15 +2,9 @@ using TETRIS.DataAccess;
 using TETRIS.BusinessLogic;
 namespace TETRIS.Presentation;
 
-public class GameMenu
+public class GameMenu(Game game)
 {
-    private readonly Game _game;
-
     // конструктор класса принимает экземпляр игры
-    public GameMenu(Game game)
-    {
-        this._game = game;
-    }
 
     // представляет меню во время игры
     public bool InGameMenu()
@@ -43,21 +37,21 @@ public class GameMenu
                 {
                     case "1":
                         Console.Clear();
-                        _game.RestartGame();
+                        game.RestartGame();
                         inMenu = false;
                         break;
                     case "2":
                         Console.Clear();
-                        _game.PlayGame(_game.PlayerName).Wait();
+                        game.PlayGame(game.PlayerName).Wait();
                         return false;
                     case "3":
                         Console.Clear();
-                        _game.SaveGame();
+                        game.SaveGame();
                         inMenu = false;
                         break;
                     case "4":
                         Console.Clear();
-                        _game.LoadGame();
+                        game.LoadGame();
                         inMenu = false;
                         break;
                     case "5":
@@ -92,7 +86,6 @@ public class GameMenu
     {
         Console.Clear();
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("d888888b d88888b d888888b d8888b. d888888b .d8888. \n`~~88~~' 88'     `~~88~~' 88  `8D   `88'   88'  YP \n   88    88ooooo    88    88oobY'    88    `8bo.   \n   88    88~~~~~    88    88`8b      88      `Y8b. \n   88    88.        88    88 `88.   .88.   db   8D \n   YP    Y88888P    YP    88   YD Y888888P `8888Y' ");
         Console.ResetColor();
         Console.WriteLine("Main Menu:");
         Console.WriteLine("1. Start New Game");
@@ -113,10 +106,10 @@ public class GameMenu
         switch (choice)
         {
             case "1":
-                _game.StartNewGame();
+                game.StartNewGame();
                 break;
             case "2":
-                _game.LoadGame();
+                game.LoadGame();
                 break;
             case "3":
                 Console.Clear();
@@ -139,6 +132,8 @@ public class GameMenu
     {
         ScoreBoard scoreBoard = new ScoreBoard(); 
         scoreBoard.DisplayScores();
+        Console.WriteLine("Press any key to return to the menu...");
+        Console.ReadKey(); // Ожидание нажатия клавиши
     }
 }
  

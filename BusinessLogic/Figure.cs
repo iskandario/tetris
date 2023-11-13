@@ -57,17 +57,17 @@ public class Figure(int x, int y, bool[,] shape, string color)
         {
             new Figure(GameField.Width / 2 - 1, -3, new [,]
             {
-                { false, true, false, false },
-                { false, true, false, false },
-                { false, true, false, false },
-                { false, true, false, false }
+                { false, false, true, false },
+                { false, false, true, false},
+                { false, false, true, false },
+                { false, false, true, false }
             }, "red"),
 
 
             
             new Figure(GameField.Width / 2 - 2, -2, new [,]
             {
-                { false, false, false},
+                
                 { false, true, false},
                 { true, true, true},
                 { false, false, false}
@@ -75,14 +75,13 @@ public class Figure(int x, int y, bool[,] shape, string color)
             }, "blue"),
             new Figure(GameField.Width / 2 - 2, -2, new [,]
             {
-                { false, false, false},
                 { true, false, false},
                 { true, true, true},
                 { false, false, false}
             }, "orange"),
             new Figure(GameField.Width / 2 - 2, -2, new [,]
             {
-                { false, false, false},
+              
                 { false, false, true},
                 { true, true, true},
                 { false, false, false}
@@ -90,7 +89,7 @@ public class Figure(int x, int y, bool[,] shape, string color)
             }, "green"),
             new Figure(GameField.Width / 2 - 2, -2, new [,]
             {
-                { false, false, false},
+                
                 { true, true, false},
                 { false, true, true},
                 { false, false, false}
@@ -98,7 +97,7 @@ public class Figure(int x, int y, bool[,] shape, string color)
             }, "yellow"),
             new Figure(GameField.Width / 2 - 2, -2, new [,]
             {
-                { false, false, false},
+               
                 { false, true, true},
                 { true, true, false},
                 { false, false, false}
@@ -106,7 +105,6 @@ public class Figure(int x, int y, bool[,] shape, string color)
             }, "purple"),
             new Figure(GameField.Width / 2 - 2, -2, new [,]
             {
-                { false, false, false, false },
                 { false, true, true, false },
                 { false, true, true, false },
                 { false, false, false, false }
@@ -196,24 +194,8 @@ public class Figure(int x, int y, bool[,] shape, string color)
 
             Figure rotatedFigure = new Figure(X, Y, newShape, Color);
 
-            // Корректировка положения, если фигура выходит за пределы поля после поворота
-            AdjustFigurePosition(rotatedFigure);
-
             return rotatedFigure;
         }
-
-        private void AdjustFigurePosition(Figure figure)
-        {
-            if (figure.X + figure.SizeX > GameField.Width)
-            {
-                figure.X = GameField.Width - figure.SizeX;
-            }
-
-            // Дополнительная корректировка, если фигура находится слишком близко к левому краю
-            if (figure.X < 0)
-            {
-                figure.X = 0;
-            }
-        }
+        
 
     }

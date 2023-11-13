@@ -5,6 +5,7 @@ namespace TETRIS.BusinessLogic;
 
 public class Game
 {
+    
     private GameField _field;
     private Figure? _current;
     private DateTime _lastMoveDown = DateTime.Now;
@@ -19,7 +20,7 @@ public class Game
     public Game()
     {
         // Создание временной фигуры с минимально допустимым массивом
-        bool[,] tempShape = new bool[,] { { true } };
+        bool[,] tempShape = { { true } };
         Figure tempFigure = new Figure(0, 0, tempShape, "TemporaryColor");
 
         // Создание временного UiHandler с временным объектом Figure
@@ -65,7 +66,7 @@ public class Game
     
     public void RestartGame()
     {
-        var name = this.PlayerName;
+        var name = PlayerName;
         PlayerName = string.IsNullOrWhiteSpace(name) ? "Player" : name; 
         _field = new GameField(_uiHandler);
         _current = _field.CurrentFigure; 

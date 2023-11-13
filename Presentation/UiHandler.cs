@@ -21,6 +21,7 @@ namespace TETRIS.Presentation
             Width = width;
         }
 
+        
         // выбор цвета в зависимости от цвета фигуры
         public ConsoleColor GetColor(string color)
         {
@@ -83,7 +84,7 @@ namespace TETRIS.Presentation
 
                 Console.WriteLine();
             }
-
+            
             // вывод счета и следующей фигуры
             Console.WriteLine("Score: " + field.Score);
             Console.WriteLine("Next Figure: ");

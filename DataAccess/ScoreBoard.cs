@@ -6,7 +6,7 @@ namespace TETRIS.DataAccess
     public class ScoreBoard
     {
         // список игроков для таблицы лидеров
-        private List<Player> _players = new List<Player>();
+        private List<Player> _players = new();
         // путь к файлу с таблицей лидеров
         private string _filePath = "Assets/scores.json"; 
 
