@@ -1,52 +1,51 @@
 using Newtonsoft.Json;
 
-
 namespace TETRIS.DataAccess
 {
     public class GameStateSaver
     {
-        private readonly string _filePath;
+        // путь к файлу сохранения
+        private readonly string _filePath = "Assets/gameField.json";
 
-        // Конструктор класса, устанавливающий путь к файлу сохранения.
-        public GameStateSaver()
-        {
-            _filePath = "/Users/iskandargarifullin/RiderProjects/TETRIS/TETRIS/Assets/gameField.json";
-        }
-
-        // Метод для сохранения состояния игры в файле JSON.
-        public void SaveGame(GameState gameState)
+        // метод для сохранения состояния игры
+        public bool SaveGame(GameState gameState)
         {
             try
             {
+                // сериализация состояния игры в json
                 var json = JsonConvert.SerializeObject(gameState);
+                // запись json в файл
                 File.WriteAllText(_filePath, json);
-                Console.WriteLine("Saved game state:");
+                return true; 
             }
-            catch (Exception e)
+            catch
             {
-                Console.WriteLine($"Не удалось сохранить игру. Ошибка: {e.Message}");
+               
+                return false;
             }
         }
 
-        // Метод для загрузки состояния игры из файла JSON.
+        // метод для загрузки сохраненного состояния игры
         public GameState? LoadGame()
         {
+            // проверка существования файла сохранения
             if (!File.Exists(_filePath))
             {
-                Console.WriteLine("Файл сохранения не найден.");
-                return null;
+                return null; 
             }
 
             try
             {
+                // чтение json из файла
                 var json = File.ReadAllText(_filePath);
+                // десериализация json в объект GameState
                 var gameState = JsonConvert.DeserializeObject<GameState>(json);
-                Console.WriteLine("Loaded game state:");
-                return gameState;
+                
+                return gameState; 
             }
-            catch (Exception e)
+            catch
             {
-                Console.WriteLine($"Не удалось загрузить игру. Ошибка: {e.Message}");
+                
                 return null;
             }
         }

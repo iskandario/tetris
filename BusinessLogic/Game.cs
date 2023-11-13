@@ -5,17 +5,17 @@ namespace TETRIS.BusinessLogic;
 
 public class Game
 {
-    public GameField Field;
-    public Figure? Current;
-    public DateTime LastMoveDown = DateTime.Now;
-    public const int MoveDownIntervalMs = 285;
-    public UiHandler UiHandler;
-    public GameMenu GameMenu;
-    public string? PlayerName;
+    private GameField _field;
+    private Figure? _current;
+    private DateTime _lastMoveDown = DateTime.Now;
+    private const int MoveDownIntervalMs = 300;
+    private UiHandler _uiHandler;
+    private readonly GameMenu _gameMenu;
+    public string PlayerName;
     private readonly GameStateSaver _gameStateSaver;
     
 
-    // Конструктор по умолчанию, инициализирующий новую игру.
+
     public Game()
     {
         // Создание временной фигуры с минимально допустимым массивом
@@ -27,24 +27,25 @@ public class Game
             GameField.Height, GameField.Width);
 
         // Инициализация GameField с временным UiHandler
-        Field = new GameField(tempUiHandler);
+        _field = new GameField(tempUiHandler);
 
         // Создание и инициализация реального UiHandler теперь, когда Cells и CurrentFigure инициализированы
-        UiHandler = new UiHandler(Field.Cells, Field.CurrentFigure, GameField.Height, GameField.Width);
+        _uiHandler = new UiHandler(_field.Cells, _field.CurrentFigure, GameField.Height, GameField.Width);
 
         // Обновление UiHandler внутри GameField
-        Field.InitializeUiHandler(UiHandler);
+        _field.InitializeUiHandler(_uiHandler);
 
         // Инициализация остальной части игры
-        GameMenu = new GameMenu(this);
+        _gameMenu = new GameMenu(this);
         _gameStateSaver = new GameStateSaver();
 
         // Установка начальных значений для имени игрока и текущей фигуры
         PlayerName = "Player"; // Установим имя по умолчанию, которое можно будет изменить позже
-        Current = Field.CurrentFigure; // Установим текущую фигуру из GameField
+        _current = _field.CurrentFigure; // Установим текущую фигуру из GameField
     }
-    
 
+
+    
 
     // Начать новую игру, запрашивая имя игрока.
     public void StartNewGame()
@@ -53,11 +54,25 @@ public class Game
         var name = Console.ReadLine();
         PlayerName = string.IsNullOrWhiteSpace(name) ? "Player" : name; 
 
-        Field = new GameField(UiHandler);
-        Current = Field.CurrentFigure; 
-        UiHandler = new UiHandler(Field.Cells, Field.CurrentFigure, GameField.Height, GameField.Width);
-        Field.InitializeUiHandler(UiHandler);
+        _field = new GameField(_uiHandler);
+        _current = _field.CurrentFigure; 
+        _uiHandler = new UiHandler(_field.Cells, _field.CurrentFigure, GameField.Height, GameField.Width);
+        _field.InitializeUiHandler(_uiHandler);
         PlayGame(PlayerName).Wait(); 
+    }
+
+    
+    
+    public void RestartGame()
+    {
+        var name = this.PlayerName;
+        PlayerName = string.IsNullOrWhiteSpace(name) ? "Player" : name; 
+        _field = new GameField(_uiHandler);
+        _current = _field.CurrentFigure; 
+        _uiHandler = new UiHandler(_field.Cells, _field.CurrentFigure, GameField.Height, GameField.Width);
+        _field.InitializeUiHandler(_uiHandler);
+        PlayGame(PlayerName).Wait(); 
+
     }
 
 
@@ -65,14 +80,14 @@ public class Game
     // Сохранить текущее игровое состояние.
     public void SaveGame()
     {
-        if (Current == null || PlayerName == null) // Проверка наличия текущей фигуры и имени игрока, сохранение состояния и вывод сообщения.
+        if (_current == null ) // Проверка наличия текущей фигуры и имени игрока, сохранение состояния и вывод сообщения.
 
         {
             Console.WriteLine("Cannot save game: Current figure or player name is not set.");
             return;
         }
 
-        var gameState = new GameState(Field, Current, LastMoveDown, Field.Score, PlayerName);
+        var gameState = new GameState(_field, _current, _lastMoveDown, _field.Score, PlayerName);
         _gameStateSaver.SaveGame(gameState);
         Console.WriteLine("Game saved successfully.");
     }
@@ -85,12 +100,12 @@ public class Game
         var gameState = _gameStateSaver.LoadGame();
         if (gameState != null)
         {
-            Field = gameState.Field;
-            Current = gameState.Current;
-            LastMoveDown = gameState.LastMoveDown;
-            Field.SetScore(gameState.Score);
-            UiHandler = new UiHandler(Field.Cells, Field.CurrentFigure, GameField.Height, GameField.Width);
-            Field.InitializeUiHandler(UiHandler);
+            _field = gameState.Field;
+            _current = gameState.Current;
+            _lastMoveDown = gameState.LastMoveDown;
+            _field.SetScore(gameState.Score);
+            _uiHandler = new UiHandler(_field.Cells, _field.CurrentFigure, GameField.Height, GameField.Width);
+            _field.InitializeUiHandler(_uiHandler);
             PlayerName = gameState.PlayerName; 
             Console.WriteLine("Game loaded successfully.");
             PlayGame(PlayerName).Wait(); 
@@ -100,27 +115,27 @@ public class Game
 
 
     // Обработка пользовательского ввода (нажатий клавиш).
-    public void HandleInput(ConsoleKey key)
+    private void HandleInput(ConsoleKey key)
     {
         switch (key)
         {
             case ConsoleKey.LeftArrow:
-                Field.MoveFigureLeft(Field.CurrentFigure);
+                _field.MoveFigureLeft(_field.CurrentFigure);
                 break;
             case ConsoleKey.RightArrow:
-                Field.MoveFigureRight(Field.CurrentFigure);
+                _field.MoveFigureRight(_field.CurrentFigure);
                 break;
             case ConsoleKey.DownArrow:
-                Field.MoveFigureDown(Field.CurrentFigure);
-                LastMoveDown = DateTime.Now; // Обновляем время последнего смещения
+                _field.MoveFigureDown(_field.CurrentFigure);
+                _lastMoveDown = DateTime.Now; // Обновляем время последнего смещения
                 break;
             case ConsoleKey.UpArrow:
-                Field.RotateFigure(Field.CurrentFigure);
+                _field.RotateFigure(_field.CurrentFigure);
                 break;
-            case ConsoleKey.Z: // Обработка клавиши Z для вызова внутриигрового меню
-                if (GameMenu.InGameMenu())
+            case ConsoleKey.Spacebar: // Обработка клавиши Z для вызова внутриигрового меню
+                if (_gameMenu.InGameMenu())
                 {
-                    throw new ExitToMainMenuException(); // Возвращаемся в главное меню
+                    throw new ExitToInGameMenuException(); // Возвращаемся в главное меню
                 }
 
                 break;
@@ -129,10 +144,10 @@ public class Game
     }
 
     // Отрисовка текущего состояния игры.
-    public void Render()
+    private void Render()
     {
-        UiHandler.Update(Field.Cells, Field.CurrentFigure, GameField.Height, GameField.Width);
-        UiHandler.Render(Field);
+        _uiHandler.Update(_field.Cells, _field.CurrentFigure, GameField.Height, GameField.Width);
+        _uiHandler.Render(_field);
 
     }
     
@@ -151,27 +166,27 @@ public class Game
                     HandleInput(key.Key);
                     if (key.Key == ConsoleKey.Z)
                     {
-                        if (GameMenu.InGameMenu())
+                        if (_gameMenu.InGameMenu())
                         {
                             var scoreBoard = new ScoreBoard();
-                            scoreBoard.AddOrUpdatePlayerScore(playerName, Field.Score);
+                            scoreBoard.AddOrUpdatePlayerScore(playerName, _field.Score);
                             scoreBoard.DisplayScores();
-                            return; // Вернуться в главное меню
+                            return;
                         }
                     }
                 }
 
-                if ((DateTime.Now - LastMoveDown).TotalMilliseconds >= MoveDownIntervalMs)
+                if ((DateTime.Now - _lastMoveDown).TotalMilliseconds >= MoveDownIntervalMs)
                 {
-                    Field.MoveFigureDown(Field.CurrentFigure);
-                    LastMoveDown = DateTime.Now;
+                    _field.MoveFigureDown(_field.CurrentFigure);
+                    _lastMoveDown = DateTime.Now;
                 }
 
                 Render();
                 await Task.Delay(30);
             }
         }
-        catch (ExitToMainMenuException)
+        catch (ExitToInGameMenuException)
         {
 
         }
@@ -187,9 +202,9 @@ public class Game
         catch (IndexOutOfRangeException)
         {
             Console.Clear();
-            Console.WriteLine($"Game over! Your score: {Field.Score}");
+            Console.WriteLine($"Game over! Your score: {_field.Score}");
             var scoreBoard = new ScoreBoard();
-            scoreBoard.AddOrUpdatePlayerScore(playerName, Field.Score);
+            scoreBoard.AddOrUpdatePlayerScore(playerName, _field.Score);
             scoreBoard.DisplayScores();
         }
     }
@@ -201,7 +216,7 @@ public class Game
         bool isRunning = true;
         while (isRunning) // цикл, пока isRunning истинно
         {
-            isRunning = GameMenu.MainMenu(); // MainMenu возвращает false, если нужно выйти
+            isRunning = _gameMenu.MainMenu(); // MainMenu возвращает false, если нужно выйти
         }
     }
 

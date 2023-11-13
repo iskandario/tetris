@@ -2,22 +2,16 @@ namespace TETRIS.BusinessLogic;
 
 using JetBrains.Annotations;
 
-public class Cell // класс ячейка
+public class Cell(int x, int y, bool isFilled, string color)
 {
     [UsedImplicitly]
 
-    public int X {  get; set; }
+    public int X {  get; set; } = x;
+
     [UsedImplicitly]
 
-    public int Y {  get; set; }
-    public bool IsFilled { get; set; }
-    public string Color { get; set; }
+    public int Y {  get; set; } = y;
 
-    public Cell(int x, int y, bool isFilled, string color)
-    {
-        X = x;
-        Y = y;
-        IsFilled = isFilled;
-        Color = color;
-    }
+    public bool IsFilled { get; set; } = isFilled;
+    public string Color { get; set; } = color;
 }

@@ -38,17 +38,17 @@ public class GameField
             SpawnNewFigure();
         }
 
-        // Метод для связи с объектом обработчика пользовательского интерфейса.
+        // метод для связи с uinadler
         public void InitializeUiHandler(UiHandler handler)
         {
             this._uiHandler = handler;
         }
         
-        // Метод для преобразования состояния игрового поля в двумерный массив булевых значений.
+        // метод для преобразования состояния игрового поля в двумерный массив булевых значений
         public bool[,] ToBoolArray()
         {
             bool[,] array = new bool[Width, Height];
-            for (int x = 0; x < Width; x++)   // Преобразование игрового поля в двумерный массив булевых значений.
+            for (int x = 0; x < Width; x++)  
 
             {
                 for (int y = 0; y < Height; y++)
@@ -61,7 +61,7 @@ public class GameField
         }
 
 
-        // Метод для смещения фигуры влево.
+        // метод для смещения фигуры влево
         public void MoveFigureLeft(Figure figure)
         {
             figure.X--;
@@ -71,7 +71,7 @@ public class GameField
             }
         }
 
-        // Метод для смещения фигуры вправо.
+        // метод для смещения фигуры вправо
         public void MoveFigureRight(Figure figure)
         {
             figure.X++;
@@ -82,7 +82,7 @@ public class GameField
         }
 
         
-        // Метод для смещения фигуры вниз.
+        // метод для смещения фигуры вниз
         public void MoveFigureDown(Figure figure)
         {
             Figure newFigure = figure.Clone();
@@ -91,7 +91,7 @@ public class GameField
             {
                 CurrentFigure = newFigure;
             }
-            else   // Смещение фигуры вниз и обработка возможных событий при достижении дна.
+            else   // обработка возможных событий при достижении дна
 
             {
                 FixFigure(figure);
@@ -103,12 +103,13 @@ public class GameField
 
         }
         
-        // Метод для вращения фигуры.
+        
+        // метод для вращения фигуры против часовой стрелки
         public void RotateFigure(Figure figure)
         {
-            if (figure.CanRotateRight(ToBoolArray()))
+            if (figure.CanRotateLeft(ToBoolArray()))
             {
-                Figure newFigure = figure.RotateRight();
+                Figure newFigure = figure.RotateLeft();
 
                 if (newFigure.X + newFigure.SizeX > Width)
                 {
@@ -127,8 +128,11 @@ public class GameField
         }
 
 
+
+
+
         
-        // Метод для проверки и удаления заполненных строк на игровом поле.
+        // метод для проверки и удаления заполненных строк на игровом поле
         private void CheckLines()
         {
             for (int y = 0; y < GameField.Height; y++)
@@ -152,7 +156,7 @@ public class GameField
         }
 
         
-        // Метод для удаления конкретной строки на игровом поле.
+        // метод для удаления конкретной строки на игровом поле
         private void DeleteLine(int line)
         {
             for (int y = line; y > 0; y--)
@@ -166,7 +170,7 @@ public class GameField
 
             for (int x = 0; x < GameField.Width; x++)
             {
-                // Очищаем самую верхнюю строку
+                // очищаем самую верхнюю строку
                 Cells[x, 0].IsFilled = false;
                 Cells[x, 0].Color = "white";
             }
@@ -175,20 +179,20 @@ public class GameField
         private Random _rnd = new Random();
 
         
-        // Метод для получения случайной фигуры.
+        // метод для получения случайной фигуры
         public Figure GetRandomFigure()
         {
             int randomIndex = _rnd.Next(0, Figure.AllFigures.Count);
             Figure newFigure = Figure.AllFigures[randomIndex].Clone();
             newFigure.X = Width / 2 - 2;
-            newFigure.Y = 1;
+            newFigure.Y = -1;
 
             return newFigure;
         }
 
         
         
-        // Метод для спавна новой фигуры на игровом поле.
+        // метод для спавна новой фигуры на игровом поле
         public void SpawnNewFigure()
         {
         
@@ -206,7 +210,7 @@ public class GameField
 
 
         
-        // Метод для "зафиксирования" фигуры на игровом поле.
+        // метод для фиксации упавшей фигуры на игровом поле
 
         public void FixFigure(Figure figure)
         {
@@ -216,7 +220,6 @@ public class GameField
                 {
                     if (figure.Shape[y, x])
                     {
-                        // Заполняем соответствующую клетку на игровом поле. 
                         Cells[figure.X + x, figure.Y + y].IsFilled = true;
                         Cells[figure.X + x, figure.Y + y].Color = figure.Color;
                     }
@@ -225,7 +228,7 @@ public class GameField
         }
 
         
-        // Метод для проверки, может ли фигура быть размещена на игровом поле.
+        // метод для проверки, может ли фигура быть размещена на игровом поле
         private bool FigureCanSpawn(Figure figure)
         {
             for (int x = 0; x < figure.SizeX; x++)
@@ -246,7 +249,7 @@ public class GameField
                     }
                 }
             }
-            return true; // Все ячейки, которые фигура собирается занять, свободны
+            return true; 
         }
 
 

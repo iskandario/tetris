@@ -1,3 +1,3 @@
 namespace TETRIS.Exceptions;
 
-public class ExitToMainMenuException : Exception;
+public class ExitToInGameMenuException : Exception;

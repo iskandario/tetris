@@ -3,30 +3,23 @@ using TETRIS.BusinessLogic;
 
 namespace TETRIS.DataAccess;
 
-public class GameState
+
+// конструктор класса GameState, принимающий игровое поле, текущую фигуру, время последнего смещения, счет и имя игрока
+public class GameState(GameField field, Figure current, DateTime lastMoveDown, int score, string playerName)
 {
-    // Игровое поле, включая заполненные и пустые ячейки.
-    public GameField Field { get; set; }
+    
+    public GameField Field { get; set; } = field;
 
-    // Текущая игровая фигура.
-    public Figure Current { get; set; }
 
-    // Время последнего смещения фигуры вниз.
-    public DateTime LastMoveDown { get; set; }
+    public Figure Current { get; set; } = current;
 
-    // Счет игры.
-    public int Score { get; set; }
 
-    // Имя игрока.
-    public string PlayerName { get; set; }
+    public DateTime LastMoveDown { get; set; } = lastMoveDown;
 
-    // Конструктор класса GameState, принимающий игровое поле, текущую фигуру, время, счет и имя игрока.
-    public GameState(GameField field, Figure current, DateTime lastMoveDown, int score, string playerName)
-    {
-        Field = field;
-        Current = current;
-        LastMoveDown = lastMoveDown;
-        Score = score;
-        PlayerName = playerName;
-    }
+
+    public int Score { get; set; } = score;
+
+
+    public string PlayerName { get; set; } = playerName;
+
 }

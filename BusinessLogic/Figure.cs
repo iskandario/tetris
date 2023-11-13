@@ -1,15 +1,15 @@
 namespace TETRIS.BusinessLogic;
 
-public class Figure
-    {
+public class Figure(int x, int y, bool[,] shape, string color)
+{
         public int SizeX
         {
-            get { return Shape.GetLength(1); } // Принимаем размер как длину внешнего измерения массива Shape
+            get { return Shape.GetLength(1); } 
         }
 
         public int SizeY
         {
-            get { return Shape.GetLength(0); } // Принимаем размер как длину внешнего измерения массива Shape
+            get { return Shape.GetLength(0); } 
         }
 
         public int BorderSizeX
@@ -47,23 +47,12 @@ public class Figure
 
 
 
-        public int X { get; set; }
-        public int Y { get; set; }
-        public bool[,] Shape { get; set; }
-        public string Color { get; set; }
+        public int X { get; set; } = x;
+        public int Y { get; set; } = y;
+        public bool[,] Shape { get; set; } = shape;
+        public string Color { get; set; } = color;
 
-        
-        // Конструктор класса Figure. Создает экземпляр фигуры с заданными параметрами.
-        public Figure(int x, int y, bool[,] shape, string color)
-        {
-            // Устанавливаем координаты X и Y, форму фигуры и цвет.
-            X = x;
-            Y = y;
-            Shape = shape;
-            Color = color;
-        }
-        
-        // Статический список всех возможных фигур в игре.
+
         public static List<Figure> AllFigures = new List<Figure>
         {
             new Figure(GameField.Width / 2 - 1, -3, new [,]
@@ -125,8 +114,8 @@ public class Figure
             }, "pink")
 
         };
-        // Клонирует текущую фигуру, создавая новый экземпляр с идентичной формой и цветом.
-
+        
+        // клонирует текущую фигуру, создавая новый экземпляр с идентичной формой и цветом
         public Figure Clone()
         {
             bool[,] newShape = new bool[Shape.GetLength(0), Shape.GetLength(1)];
@@ -136,8 +125,8 @@ public class Figure
         }
         
         
-        // Проверяет, можно ли повернуть фигуру вправо на текущей позиции.
-        public bool CanRotateRight(bool[,] filledCells)
+        // проверяет, можно ли повернуть фигуру влево на текущей позиции
+        public bool CanRotateLeft(bool[,] filledCells)
         {
             int newSizeX = SizeY;
             int newSizeY = SizeX;
@@ -155,8 +144,9 @@ public class Figure
             return CheckPositionValid(newShape, X, Y, filledCells);
         }
 
+
         
-        // Приватный метод, проверяющий, что фигура может быть размещена в указанной позиции.
+        // метод, проверяющий, что фигура может быть размещена в указанной позиции
         private bool CheckPositionValid(bool[,] shape, int shapeX, int shapeY, bool[,] filledCells)
         {
             for (int y = 0; y < shape.GetLength(0); y++)
@@ -166,19 +156,19 @@ public class Figure
                     int boardX = shapeX + x;
                     int boardY = shapeY + y;
 
-                    // Проверяем, что клетка находится в рамках поля
+                    // проверяем, что клетка находится в рамках поля
                     if (boardX < 0 || boardX >= filledCells.GetLength(0) || boardY >= filledCells.GetLength(1))
                     {
                         return false;
                     }
 
-                    // Пропускаем строки, которые еще не вошли в игровое поле
+                    // пропускаем строки, которые еще не вошли в игровое поле
                     if (boardY < 0)
                     {
                         continue;
                     }
 
-                    // Проверяем, что фигура не пересекается с другими заполненными клетками
+                    // проверяем, что фигура не пересекается с другими заполненными клетками
                     if (shape[y, x] && filledCells[boardX, boardY])
                     {
                         return false;
@@ -189,42 +179,40 @@ public class Figure
             return true;
         }
 
-        // Поворачивает текущую фигуру вправо и возвращает новую фигуру с измененной формой.
-        public Figure RotateRight()
+        // метод который поворачивает текущую фигуру влево и возвращает новую фигуру 
+        public Figure RotateLeft()
         {
-            if (SizeX == 4)
-            {
-                // Если фигура-палка имеет ширину 4, то выполним специальное вращение
-                bool[,] newShape = new bool[SizeY, SizeX];
-                for (int y = 0; y < SizeY; y++)
-                {
-                    for (int x = 0; x < SizeX; x++)
-                    {
-                        newShape[SizeY - 1 - x, y] = Shape[y, x];
-                    }
-                }
-                return new Figure(X, Y, newShape, Color);
-            }
-            else
-            {
-                // Для других фигур выполняем обычное вращение
-                int centerX = SizeX / 2;
-                int centerY = SizeY / 2;
-                bool[,] newShape = new bool[SizeY, SizeX];
-                for (int y = 0; y < SizeY; y++)
-                {
-                    for (int x = 0; x < SizeX; x++)
-                    {
-                        int newX = centerX + y - centerY;
-                        int newY = centerY - x + centerX;
+            int newSizeY = SizeX;
+            int newSizeX = SizeY;
+            bool[,] newShape = new bool[newSizeY, newSizeX];
 
-                        if (newX >= 0 && newX < SizeX && newY >= 0 && newY < SizeY)
-                        {
-                            newShape[newY, newX] = Shape[y, x];
-                        }
-                    }
+            for (int y = 0; y < SizeY; y++)
+            {
+                for (int x = 0; x < SizeX; x++)
+                {
+                    newShape[x, SizeY - 1 - y] = Shape[y, x];
                 }
-                return new Figure(X, Y, newShape, Color);
+            }
+
+            Figure rotatedFigure = new Figure(X, Y, newShape, Color);
+
+            // Корректировка положения, если фигура выходит за пределы поля после поворота
+            AdjustFigurePosition(rotatedFigure);
+
+            return rotatedFigure;
+        }
+
+        private void AdjustFigurePosition(Figure figure)
+        {
+            if (figure.X + figure.SizeX > GameField.Width)
+            {
+                figure.X = GameField.Width - figure.SizeX;
+            }
+
+            // Дополнительная корректировка, если фигура находится слишком близко к левому краю
+            if (figure.X < 0)
+            {
+                figure.X = 0;
             }
         }
 

@@ -2,14 +2,10 @@
 
 namespace TETRIS.Exceptions
 {
-    public class GameOverException : Exception
+    public class GameOverException(int score) : Exception
     {
-        public int Score { get; } // Свойство, содержащее счет игрока при завершении игры.
+        public int Score { get; } = score; // Свойство, содержащее счет игрока при завершении игры.
 
         // Конструктор исключения GameOverException.
-        public GameOverException(int score)
-        {
-            Score = score;
-        }
     }
 }

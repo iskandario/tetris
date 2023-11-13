@@ -1,71 +1,80 @@
 using TETRIS.BusinessLogic;
 using Newtonsoft.Json;
 
-
 namespace TETRIS.DataAccess
 {
     public class ScoreBoard
     {
+        // список игроков для таблицы лидеров
         private List<Player> _players = new List<Player>();
-        private string _filePath = "/Users/iskandargarifullin/RiderProjects/TETRIS/TETRIS/Assets/scores.json"; // Путь и имя файла JSON
+        // путь к файлу с таблицей лидеров
+        private string _filePath = "Assets/scores.json"; 
 
-        // Метод для добавления или обновления счета игрока.
+        public ScoreBoard()
+        {
+            LoadFromFile(); 
+            SaveToFile();
+        }
+
+        // добавление или обновление рекорда игрока
         public void AddOrUpdatePlayerScore(string name, int score)
         {
+            // поиск существующего игрока в списке
             var existingPlayer = _players.FirstOrDefault(p => p.Name == name);
 
+            // если игрока нет в списке, добавляем его
             if (existingPlayer == null)
             {
                 _players.Add(new Player(name, score));
             }
             else
             {
+                // если игрок уже есть, обновляем его счёт
                 existingPlayer.Score = Math.Max(existingPlayer.Score, score);
             }
 
+            // сортировка списка игроков по убыванию очков
             _players = _players.OrderByDescending(p => p.Score).ToList();
 
-            if (_players.Count > 10) // Если количество игроков в таблице больше 10, удаляем лишние записи.
+            // ограничение списка до 10 игроков
+            if (_players.Count > 10)
             {
-                _players.RemoveAt(10);
+                _players = _players.Take(10).ToList(); 
             }
 
+            // сохранение списка в файл
             SaveToFile();
         }
 
-        // Метод для сохранения данных в файл JSON.
+        // метод для сохранения списка игроков в файл
         public void SaveToFile()
         {
-            var jsonData = JsonConvert.SerializeObject(_players);
+            // сериализация списка игроков в json
+            var jsonData = JsonConvert.SerializeObject(_players, Formatting.Indented); 
+            // запись json в файл
             File.WriteAllText(_filePath, jsonData);
         }
 
-        // Метод для загрузки данных из файла JSON.
+        // метод для загрузки списка игроков из файла
         public void LoadFromFile()
         {
-            if (!File.Exists(_filePath)) return;
-
-            var json = File.ReadAllText(_filePath);
-            _players = JsonConvert.DeserializeObject<List<Player>>(json) ?? new List<Player>();
+            // проверка наличия файла
+            if (File.Exists(_filePath))
+            {
+                // чтение данных из файла
+                var json = File.ReadAllText(_filePath);
+                // десериализация данных в список игроков
+                _players = JsonConvert.DeserializeObject<List<Player>>(json) ?? new List<Player>();
+            }
         }
 
-        // Метод для отображения таблицы рекордов в консоли.
+        // метод для отображения таблицы лидеров
         public void DisplayScores()
         {
             Console.WriteLine("Scoreboard:");
             foreach (var player in _players)
             {
                 Console.WriteLine($"{player.Name}: {player.Score}");
-            }
-        }
-
-        // Метод для загрузки списка игроков из файла при создании экземпляра класса.
-        public ScoreBoard()
-        {
-            if (File.Exists(_filePath))
-            {
-                var jsonData = File.ReadAllText(_filePath);
-                _players = JsonConvert.DeserializeObject<List<Player>>(jsonData) ?? new List<Player>();
             }
         }
     }
