@@ -80,7 +80,6 @@ namespace TETRIS.Presentation
                         Console.Write("\u2591\u2591 "); // пустая клетка
                     }
                 }
-
                 Console.WriteLine();
             }
 

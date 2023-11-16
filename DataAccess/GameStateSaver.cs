@@ -5,7 +5,7 @@ namespace TETRIS.DataAccess
     public class GameStateSaver
     {
         // путь к файлу сохранения
-        private readonly string _filePath = "Assets/gameField.json";
+        private string _filePath = "/Users/iskandargarifullin/RiderProjects/tetrisok/Assets/gameField.json";
 
         // метод для сохранения состояния игры
         public bool SaveGame(GameState gameState)
@@ -16,6 +16,7 @@ namespace TETRIS.DataAccess
                 var json = JsonConvert.SerializeObject(gameState);
                 // запись json в файл
                 File.WriteAllText(_filePath, json);
+                
                 return true; 
             }
             catch

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/iskandargarifullin/RiderProjects/TETRIS/TETRIS/TETRIS.csproj": {}
+    "/Users/iskandargarifullin/RiderProjects/tetrisok/TETRIS.csproj": {}
   },
   "projects": {
-    "/Users/iskandargarifullin/RiderProjects/TETRIS/TETRIS/TETRIS.csproj": {
+    "/Users/iskandargarifullin/RiderProjects/tetrisok/TETRIS.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/iskandargarifullin/RiderProjects/TETRIS/TETRIS/TETRIS.csproj",
+        "projectUniqueName": "/Users/iskandargarifullin/RiderProjects/tetrisok/TETRIS.csproj",
         "projectName": "TETRIS",
-        "projectPath": "/Users/iskandargarifullin/RiderProjects/TETRIS/TETRIS/TETRIS.csproj",
+        "projectPath": "/Users/iskandargarifullin/RiderProjects/tetrisok/TETRIS.csproj",
         "packagesPath": "/Users/iskandargarifullin/.nuget/packages/",
-        "outputPath": "/Users/iskandargarifullin/RiderProjects/TETRIS/TETRIS/obj/",
+        "outputPath": "/Users/iskandargarifullin/RiderProjects/tetrisok/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/iskandargarifullin/.nuget/NuGet/NuGet.Config"

@@ -107,25 +107,45 @@ public class GameField
         // метод для вращения фигуры против часовой стрелки
         public void RotateFigure(Figure figure)
         {
-            if (figure.CanRotateLeft(ToBoolArray()))
+            if (!figure.CanRotateLeft(ToBoolArray()))
             {
-                Figure newFigure = figure.RotateLeft();
+                return; // Если поворот невозможен, выходим из метода
+            }
 
-                if (newFigure.X + newFigure.SizeX > Width)
-                {
-                    newFigure.X = Width - newFigure.SizeX;
-                }
-                else if (newFigure.X < 0)
-                {
-                    newFigure.X = 0;
-                }
+            Figure rotatedFigure = figure.RotateLeft();
 
-                if (FigureCanSpawn(newFigure))
-                {
-                    CurrentFigure = newFigure;
-                }
+            // Попытка сдвинуть фигуру влево, если она не помещается
+            while (rotatedFigure.X < 0 && CanShift(rotatedFigure, 1))
+            {
+                rotatedFigure.X++;
+            }
+
+            // Попытка сдвинуть фигуру вправо, если она не помещается
+            while (rotatedFigure.X + rotatedFigure.SizeX > Width && CanShift(rotatedFigure, -1))
+            {
+                rotatedFigure.X--;
+            }
+
+            // Проверка, можно ли разместить фигуру после сдвига
+            if (FigureCanSpawn(rotatedFigure))
+            {
+                CurrentFigure = rotatedFigure;
             }
         }
+
+
+
+       
+        private bool CanShift(Figure figure, int shift)
+        {
+            Figure shiftedFigure = figure.Clone();
+            shiftedFigure.X += shift;
+
+            return FigureCanSpawn(shiftedFigure);
+        }
+
+
+
 
 
 
@@ -135,10 +155,10 @@ public class GameField
         // метод для проверки и удаления заполненных строк на игровом поле
         private void CheckLines()
         {
-            for (int y = 0; y < GameField.Height; y++)
+            for (int y = 0; y < Height; y++)
             {
                 bool lineIsFilled = true;
-                for (int x = 0; x < GameField.Width; x++)
+                for (int x = 0; x < Width; x++)
                 {
                     if (!Cells[x, y].IsFilled)
                     {
@@ -161,14 +181,14 @@ public class GameField
         {
             for (int y = line; y > 0; y--)
             {
-                for (int x = 0; x < GameField.Width; x++)
+                for (int x = 0; x < Width; x++)
                 {
                     Cells[x, y].IsFilled = Cells[x, y - 1].IsFilled;
                     Cells[x, y].Color = Cells[x, y - 1].Color;
                 }
             }
 
-            for (int x = 0; x < GameField.Width; x++)
+            for (int x = 0; x < Width; x++)
             {
                 // очищаем самую верхнюю строку
                 Cells[x, 0].IsFilled = false;
@@ -176,7 +196,7 @@ public class GameField
             }
         }
 
-        private Random _rnd = new Random();
+        private Random _rnd = new();
 
         
         // метод для получения случайной фигуры

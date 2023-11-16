@@ -51,10 +51,12 @@ public class GameMenu
                         _game.PlayGame(_game.PlayerName).Wait();
                         return false;
                     case "3":
+                    
                         Console.Clear();
                         _game.SaveGame();
-                        inMenu = false;
-                        break;
+                        Console.WriteLine("Game saved successfully. Press any key to return to the menu...");
+                        Console.ReadKey();
+                        return true;
                     case "4":
                         Console.Clear();
                         _game.LoadGame();
@@ -139,6 +141,8 @@ public class GameMenu
     {
         ScoreBoard scoreBoard = new ScoreBoard(); 
         scoreBoard.DisplayScores();
+        Console.WriteLine("Press any key to return to the menu...");
+        Console.ReadKey(); // Ожидание нажатия клавиши
     }
 }
  

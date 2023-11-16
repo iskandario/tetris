@@ -8,7 +8,7 @@ namespace TETRIS.DataAccess
         // список игроков для таблицы лидеров
         private List<Player> _players = new List<Player>();
         // путь к файлу с таблицей лидеров
-        private string _filePath = "Assets/scores.json"; 
+        private string _filePath = "/Users/iskandargarifullin/RiderProjects/tetrisok/Assets/scores.json"; 
 
         public ScoreBoard()
         {
